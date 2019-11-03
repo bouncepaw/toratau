@@ -82,3 +82,37 @@ Return empty string.
 
 Get definition of a macro with such *macro-name*.
 
+### Flow control macros
+
+#### ifeq
+
+```
+[ifeq str1 str2 then else*]
+```
+
+If *str1* equals *str2*, then return *then*, else return *else*. If *else* is not passed, then it is assumed that it is empty string.
+
+#### ifdef
+
+```
+[ifdef macro-name then else*]
+```
+
+If macro called *macro-name* is defined, then return *then*, else return *else*. If *else* is not passed, then it is assumed that it is empty string.
+
+#### apply
+
+```
+[apply macro-name args...]
+```
+
+Call macro called *macro-name* with arguments that are in *args* separated by whitespace. Any number of *args*es can be passed, they will be joined by whitespace together first.
+
+#### dotimes
+
+```
+[dotimes n expr joiner*]
+```
+
+Evaluate expression *expr* *n* times. Results of evaluation are then joined together with *joiner*, this value is then returned. If *joiner* is not passed, it is assumed as empty string.
+
