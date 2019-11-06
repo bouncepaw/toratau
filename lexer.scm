@@ -3,7 +3,8 @@
   (import scheme
           (chicken base)
           (srfi 1)
-          (srfi 13))
+          (srfi 13)
+          matchable)
 
   (define (<text-block> lines)
     ; where lines is Listof Cons<LineNo, String>
@@ -15,55 +16,56 @@
         ((range) (cons from-line to-line))
         ((content) content))))
 
-  (define (text->tokens chars)
-    ())
+;   (define (text->tokens chars)
+;     ())
 
-  (define (lex-until-end-of-expr chars)
-    (let* loop ((objects '())
-                (rest (cdr chars))
-                (state 'in-expr) ; or in-double, in-single, in-curly, in-raw
-                (acc '()))
-      (case state
-        (('in-expr
-          (case (car rest)
-            ((#\[) ; nested expr
-             (let-values (((new-rest new-obj) (lex-until-end-of-expr)))
-               (loop (cons new-obj objects)
-                     new-rest
-                     'in-expr)))
-            ((#\') ; single quoted
-             (loop objects (cdr rest) 'in-single))
-            ((#\") ; double quoted
-             (loop objects (cdr rest) 'in-double))
-            ((#\{) ; in curly
-             (loop objects (cdr rest) 'in-curly))
-            )))
-        (('in-single)
-         (case (car rest)
-           ((#\') ; end
-            (loop (cons (<single-string> acc) objects)
-                  (cdr rest)
-                  'in-expr
-                  '()))
-           ((#\\)
-            (if (equal? #\' (cdr rest))
-              (loop objects
-                    (cddr rest)
-                    'in-single
-                    (cons #\' (cons #\\ acc)))))
-           (else
-             (loop objects
-                   (cdr rest)
-                   'in-single
-                   (cons (car rest) acc)))))
-        (('in-curly)
-         (case (car rest)))
-        (('in-raw))
-        (('in-double)))))
+  (define (lex-expr chars)
+    (let loop ((objects '())
+               (rest (cdr chars)))
+      (if (equal? #\] (car rest))
+        (values 0 ; not really used, so it'll be 0
+                (reverse objects) 
+                (cdr chars))
+        (let-values (((_chars-taken new-rest object)
+                      ((match (car rest)
+                         (#\[ lex-expr)
+                         (#\{ lex-curly-string)
+                         (#\' lex-single-string)
+                         ; (#\" lex-double-string)
+                         ((? char-whitespace?) lex-whitespace)
+                         (_ lex-raw-string))))
+          (loop (cons object objects) new-rest))))))
 
-  (define (lex-until-end-of-curly-string chars)
-    (let loop ((len 1)
-               (rest chars))
+  (define (lex-whitespace chars)
+    (let loop ((len 1) (rest chars))
+      (if (char-whitespace? (car rest))
+        (loop (+ 1 len) (cdr rest))
+        (values len (cdr rest) (list->string (take chars len))))))
+
+  (define (lex-raw-string chars)
+    (let loop ((len 1) (rest (cdr chars)))
+      (cond
+        ((char-whitespace? (car rest))
+         (values len (cdr rest) (list->string (take chars len))))
+        (else
+          (loop (+ 1 len) (cdr rest))))))
+
+  (define (lex-single-string chars)
+    (let loop ((len 1) (rest (cdr chars)))
+      (case (car rest)
+        ((#\') ; end
+         (values (+ 1 len)
+                 (cdr rest)
+                 (list->string (take chars (+ 1 len))))
+         ((#\\)
+          (if (equal? #\' (cadr rest))
+            (loop (+ 2 len) (cddr rest))
+            (loop (+ 1 len) (cdr rest))))
+         (else
+           (loop (+ 1 len) (cdr rest))))))
+
+  (define (lex-curly-string chars)
+    (let loop ((len 1) (rest (cdr chars)))
       (case (car rest)
         ((#\\)
          (if (or (equal? (cadr rest) #\{)
@@ -71,16 +73,12 @@
            (loop (+ 2 len) (cddr rest))
            (loop (+ 1 len) (cdr rest))))
         ((#\{)
-         (let-values (((new-len new-rest _str) (lex-until-end-of-expr rest)))
+         (let-values (((new-len new-rest _str) (lex-expr rest)))
            (loop (+ len new-len) new-rest)))
         ((#\})
          (values (+ 1 len)
                  (cdr rest)
-                 (list->string (take rest (+ 1 len)))))
+                 (list->string (take chars (+ 1 len)))))
         (else (loop (+ 1 len) (cdr rest))))))
-
-  (define (<single-string> chars-reversed)
-    (define content (string-join (reverse (chars-reversed))) "")
-    (lambda (method) content))
 
   )
