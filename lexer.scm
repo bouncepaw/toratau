@@ -20,8 +20,7 @@
 ;     ())
 
   (define (lex-expr chars)
-    (let loop ((objects '())
-               (rest (cdr chars)))
+    (let loop ((objects '()) (rest (cdr chars)))
       (if (equal? #\] (car rest))
         (values 0 ; not really used, so it'll be 0
                 (reverse objects) 
@@ -33,8 +32,8 @@
                          (#\' lex-single-string)
                          ; (#\" lex-double-string)
                          ((? char-whitespace?) lex-whitespace)
-                         (_ lex-raw-string))))
-          (loop (cons object objects) new-rest))))))
+                         (_ lex-raw-string)))))
+          (loop (cons object objects) new-rest)))))
 
   (define (lex-whitespace chars)
     (let loop ((len 1) (rest chars))
@@ -56,13 +55,13 @@
         ((#\') ; end
          (values (+ 1 len)
                  (cdr rest)
-                 (list->string (take chars (+ 1 len))))
-         ((#\\)
-          (if (equal? #\' (cadr rest))
-            (loop (+ 2 len) (cddr rest))
-            (loop (+ 1 len) (cdr rest))))
-         (else
-           (loop (+ 1 len) (cdr rest))))))
+                 (list->string (take chars (+ 1 len)))))
+        ((#\\)
+         (if (equal? #\' (cadr rest))
+           (loop (+ 2 len) (cddr rest))
+           (loop (+ 1 len) (cdr rest))))
+        (else
+          (loop (+ 1 len) (cdr rest))))))
 
   (define (lex-curly-string chars)
     (let loop ((len 1) (rest (cdr chars)))
@@ -73,12 +72,13 @@
            (loop (+ 2 len) (cddr rest))
            (loop (+ 1 len) (cdr rest))))
         ((#\{)
-         (let-values (((new-len new-rest _str) (lex-expr rest)))
+         (let-values (((new-len new-rest _str) (lex-curly-string rest)))
            (loop (+ len new-len) new-rest)))
         ((#\})
          (values (+ 1 len)
                  (cdr rest)
                  (list->string (take chars (+ 1 len)))))
-        (else (loop (+ 1 len) (cdr rest))))))
+        (else
+          (loop (+ 1 len) (cdr rest))))))
 
   )
