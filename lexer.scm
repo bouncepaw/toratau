@@ -32,7 +32,7 @@
                          (#\' lex-single-string)
                          ; (#\" lex-double-string)
                          ((? char-whitespace?) lex-whitespace)
-                         (_ lex-raw-string)))))
+                         (_ lex-raw-string)) chars)))
           (loop (cons object objects) new-rest)))))
 
   (define (lex-whitespace chars)
@@ -77,7 +77,7 @@
         ((#\})
          (values (+ 1 len)
                  (cdr rest)
-                 (list->string (take chars (+ 1 len)))))
+                 (list->string (drop (take chars len) 1))))
         (else
           (loop (+ 1 len) (cdr rest))))))
 
