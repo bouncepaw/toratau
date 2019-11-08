@@ -55,7 +55,7 @@
         ((#\') ; end
          (values (+ 1 len)
                  (cdr rest)
-                 (list->string (take chars (+ 1 len)))))
+                 (list->string (drop (take chars len) 1))))
         ((#\\)
          (if (equal? #\' (cadr rest))
            (loop (+ 2 len) (cddr rest))
