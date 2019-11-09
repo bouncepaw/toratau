@@ -48,16 +48,20 @@
                          (#\{ lex-curly-string)
                          (#\' lex-single-string)
                          ; (#\" lex-double-string)
-                         ((? char-whitespace?) lex-whitespace)
+                         ((? char-whitespace? _) lex-whitespace)
                          (_ lex-raw-string)) rest)))
-            (loop (cons object objects) new-rest)
+            (loop (if (and (equal? "" object) (char-whitespace? (car rest)))
+                      ; ignore empty strings produced by whitespace
+                      objects
+                      (cons object objects))
+                  new-rest)
           )))))
 
   (define (lex-whitespace chars)
     (let loop ((len 1) (rest chars))
       (if (char-whitespace? (car rest))
         (loop (+ 1 len) (cdr rest))
-        (values len (cdr rest) (list->string (take chars len))))))
+        (values len rest ""))))
 
   (define (lex-raw-string chars)
     (let loop ((len 1) (rest (cdr chars)))

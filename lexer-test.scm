@@ -17,7 +17,7 @@
                                 (->string str2))))))
 
 (test-lex "Curly string test"
-          "{Curly string can contain \\{ escapes\\}, can\nspan multiple lines, but %[expressions do not eval.]}"
+          "{Curly string can contain \\{ escapes\\}, can\nspan multiple lines, but %[expressions do not eval.]}  this will be dropped"
           "Curly string can contain \\{ escapes\\}, can\nspan multiple lines, but %[expressions do not eval.]"
           lex-curly-string)
 
@@ -32,7 +32,18 @@
           "string"
           lex-raw-string)
 
-(test-lex "Simple expression test"
+(test-lex "Simple expr test"
           "[it should end up as a list] "
           '("it" "should" "end" "up" "as" "a" "list")
           lex-expr)
+
+(test-lex "Cyrillic expr test"
+          "[это будет список]"
+          '("это" "будет" "список")
+          lex-expr)
+
+(test-lex "Mixed expr test (curly)"
+          "[it {should be simple} as hell]"
+          '("it" "should be simple" "as" "hell")
+          lex-expr)
+
