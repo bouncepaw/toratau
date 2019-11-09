@@ -16,8 +16,21 @@
         ((range) (cons from-line to-line))
         ((content) content))))
 
-;   (define (text->tokens chars)
-;     ())
+  (define (text->tokens chars)
+    (let loop ((objects '()) (rest chars) (acc-str '()))
+      (cond
+        ((null? chars)
+         (cons "cat" (reverse objects)))
+        ((and (equal? (car chars) #\%)
+              (equal? (cadr chars) #\[))
+         (let-values (((last-text) (list->string (reverse acc)))
+                      ((_chars-taken new-rest last-expr) (lex-expr (cdr rest))))
+           (loop (cons expr-read-now (cons last-text objects))
+                 new-rest
+                 '())))
+        (else
+          (loop objects (cdr rest) (cons (car rest) acc-str)))
+        )))
 
   (define (lex-expr chars)
     (let loop ((objects '()) (rest (cdr chars)))
