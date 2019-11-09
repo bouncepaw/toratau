@@ -17,7 +17,7 @@
         ((content) content))))
 
   (define (text->tokens chars)
-    (let loop ((objects '()) (rest chars) (acc-str '()))
+    (let loop ((objects '()) (rest chars) (acc '()))
       (cond
         ((null? chars)
          (cons "cat" (reverse objects)))
@@ -25,28 +25,33 @@
               (equal? (cadr chars) #\[))
          (let-values (((last-text) (list->string (reverse acc)))
                       ((_chars-taken new-rest last-expr) (lex-expr (cdr rest))))
-           (loop (cons expr-read-now (cons last-text objects))
+           (loop (cons last-text (cons last-text objects))
                  new-rest
                  '())))
         (else
-          (loop objects (cdr rest) (cons (car rest) acc-str)))
+          (loop objects (cdr rest) (cons (car rest) acc)))
         )))
 
   (define (lex-expr chars)
     (let loop ((objects '()) (rest (cdr chars)))
-      (if (equal? #\] (car rest))
-        (values 0 ; not really used, so it'll be 0
-                (reverse objects) 
-                (cdr chars))
-        (let-values (((_chars-taken new-rest object)
-                      ((match (car rest)
+      (cond
+        ((null? rest) 1)
+        ((equal? (car rest) #\])
+         (values 0 ; not really used, so it'll be 0
+                 (cdr chars)
+                 (reverse objects) 
+                 ))
+        (else
+          (let-values (((_chars-taken new-rest object)
+                        ((match (car rest)
                          (#\[ lex-expr)
                          (#\{ lex-curly-string)
                          (#\' lex-single-string)
                          ; (#\" lex-double-string)
                          ((? char-whitespace?) lex-whitespace)
-                         (_ lex-raw-string)) chars)))
-          (loop (cons object objects) new-rest)))))
+                         (_ lex-raw-string)) rest)))
+            (loop (cons object objects) new-rest)
+          )))))
 
   (define (lex-whitespace chars)
     (let loop ((len 1) (rest chars))
@@ -59,6 +64,8 @@
       (cond
         ((char-whitespace? (car rest))
          (values len (cdr rest) (list->string (take chars len))))
+        ((equal? (car rest) #\])
+         (values len rest (list->string (take chars len))))
         (else
           (loop (+ 1 len) (cdr rest))))))
 

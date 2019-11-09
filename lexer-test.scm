@@ -1,6 +1,7 @@
 (load "lexer.scm")
 (import toratau.lexer)
 (import srfi-13)
+(import (chicken string))
 
 (define (test-lex test-name str1 str2 with-fn)
   (define-values (len chars str) (with-fn (string->list str1)))
@@ -8,8 +9,12 @@
   (print test-name "\t"
            (if (equal? str1-lexed str2) 
              " OK" 
-             (string-join (list " ERROR\nIn:\n" str1 "\nOut:\n" str1-lexed 
-                          "\nExpect:\n" str2)))))
+             (string-join (list " ERROR\nIn:\n" 
+                                (->string str1)
+                                "\nOut:\n"
+                                (->string str1-lexed)
+                                "\nExpect:\n"
+                                (->string str2))))))
 
 (test-lex "Curly string test"
           "{Curly string can contain \\{ escapes\\}, can\nspan multiple lines, but %[expressions do not eval.]}"
@@ -26,3 +31,8 @@
         everything else {is here}"
           "string"
           lex-raw-string)
+
+(test-lex "Simple expression test"
+          "[it should end up as a list] "
+          '("it" "should" "end" "up" "as" "a" "list")
+          lex-expr)
