@@ -19,13 +19,13 @@
   (define (text->tokens chars)
     (let loop ((objects '()) (rest chars) (acc '()))
       (cond
-        ((null? chars)
-         (cons "cat" (reverse objects)))
-        ((and (equal? (car chars) #\%)
-              (equal? (cadr chars) #\[))
+        ((null? rest)
+         (cons "cat" (reverse (cons (list->string (reverse acc)) objects))))
+        ((and (equal? (car rest) #\%)
+              (equal? (cadr rest) #\[))
          (let-values (((last-text) (list->string (reverse acc)))
                       ((_chars-taken new-rest last-expr) (lex-expr (cdr rest))))
-           (loop (cons last-text (cons last-text objects))
+           (loop (cons last-expr (cons last-text objects))
                  new-rest
                  '())))
         (else
@@ -38,7 +38,7 @@
         ((null? rest) 1)
         ((equal? (car rest) #\])
          (values 0 ; not really used, so it'll be 0
-                 (cdr chars)
+                 (cdr rest)
                  (reverse objects) 
                  ))
         (else

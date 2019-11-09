@@ -8,7 +8,7 @@
   (define str1-lexed str)
   (print test-name "\t"
            (if (equal? str1-lexed str2) 
-             " OK" 
+             "OK" 
              (string-join (list " ERROR\nIn:\n" 
                                 (->string str1)
                                 "\nOut:\n"
@@ -46,4 +46,17 @@
           "[it {should be simple} as hell]"
           '("it" "should be simple" "as" "hell")
           lex-expr)
+
+#;(test-lex "Text with expr test"
+          "This is text %[but this is expression] This is text again"
+          "a"
+          text->tokens)
+
+(define test-tokens-text (text->tokens (string->list"This is text %[{but} this is expression] This is text again")))
+(define test-tokens-goal
+  (list "cat" "This is text "
+        (list "but" "this" "is" "expression")
+        " This is text again"))
+(print "Tokenization test\t"
+       (if (equal? test-tokens-text test-tokens-goal) "OK" "ERROR"))
 
