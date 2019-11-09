@@ -20,3 +20,9 @@
           "'Single strings can contain \\'escapes\\', can\nspan multiple lines, but %[expressions do not eval].'"
           "Single strings can contain \\'escapes\\', can\nspan multiple lines, but %[expressions do not eval]."
           lex-single-string)
+
+(test-lex "Unwrapped string test"
+          "string 
+        everything else {is here}"
+          "string"
+          lex-raw-string)
