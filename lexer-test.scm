@@ -21,6 +21,11 @@
           "Curly string can contain \\{ escapes\\}, can\nspan multiple lines, but %[expressions do not eval.]"
           lex-curly-string)
 
+(test-lex "Nested curly test"
+          "{outmost {inmost}}"
+          "outmost {inmost}"
+          lex-curly-string)
+
 (test-lex "Single string test"
           "'Single strings can contain \\'escapes\\', can\nspan multiple lines, but %[expressions do not eval].'"
           "Single strings can contain \\'escapes\\', can\nspan multiple lines, but %[expressions do not eval]."
@@ -42,15 +47,15 @@
           '("это" "будет" "список")
           lex-expr)
 
+(test-lex "Nested expr test"
+          "[{outmost list} [{nested list}] {outmost list}]"
+          '("outmost list" ("nested list") "outmost list")
+          lex-expr)
+
 (test-lex "Mixed expr test (curly)"
           "[it {should be simple} as hell]"
           '("it" "should be simple" "as" "hell")
           lex-expr)
-
-#;(test-lex "Text with expr test"
-          "This is text %[but this is expression] This is text again"
-          "a"
-          text->tokens)
 
 (define test-tokens-text (text->tokens (string->list"This is text %[{but} this is expression] This is text again")))
 (define test-tokens-goal
