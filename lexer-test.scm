@@ -69,3 +69,17 @@
           "\"This is part of double string %[this is expression {with curly string} et al] sounds fun\" this is dropped"
           '("cat" "This is part of double string " ("this" "is" "expression" "with curly string" "et" "al") " sounds fun")
           lex-double-string)
+
+(let ((test-final-text
+        "Begin %[embed expr [nested expr] {curly string} 'single string'] {not curly string} [not expr] %[another expr \"with double string\" and some empty values [] {} \"\"]")
+      (test-final-goal '("cat" "Begin " ("embed" "expr" ("nested" "expr")
+                                        "curly string" "single string")
+                        " {not curly string} [not expr] "
+                        ("another" "expr" ("cat" "with double string")
+                         "and" "some" "empty" "values" () "" ("cat" "")) "")))
+  (print "Superfinal supertest\t"
+         (if (equal? (text->tokens (string->list test-final-text))
+                     test-final-goal)
+             "OK"
+             "ERROR")))
+
