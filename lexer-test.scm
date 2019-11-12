@@ -60,3 +60,7 @@
 (print "Tokenization test\t"
        (if (equal? test-tokens-text test-tokens-goal) "OK" "ERROR"))
 
+(test-lex "Double string test"
+          "\"This is part of double string %[this is expression {with curly string} et al] sounds fun\" this is dropped"
+          '("cat" "This is part of double string " ("this" "is" "expression" "with curly string" "et" "al") " sounds fun")
+          lex-double-string)

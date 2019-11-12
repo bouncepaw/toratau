@@ -47,7 +47,7 @@
                          (#\[ lex-expr)
                          (#\{ lex-curly-string)
                          (#\' lex-single-string)
-                         ; (#\" lex-double-string)
+                         (#\" lex-double-string)
                          ((? char-whitespace? _) lex-whitespace)
                          (_ lex-raw-string)) rest)))
             (loop (if (and (equal? "" object) (char-whitespace? (car rest)))
@@ -76,7 +76,7 @@
   (define (lex-single-string chars)
     (let loop ((len 1) (rest (cdr chars)))
       (case (car rest)
-        ((#\') ; end
+        ((#\')
          (values (+ 1 len)
                  (cdr rest)
                  (list->string (drop (take chars len) 1))))
@@ -104,5 +104,18 @@
                  (list->string (drop (take chars len) 1))))
         (else
           (loop (+ 1 len) (cdr rest))))))
+
+  (define (lex-double-string chars)
+      (let loop ((len 0) (rest (cdr chars)))
+        (cond
+          ((and (equal? (car rest) #\\)
+                (equal? (cadr rest) #\"))
+           (loop (+ 1 len) (cddr rest)))
+          ((equal? (car rest) #\")
+           (values len
+                   (cdr rest)
+                   (text->tokens (drop (take chars (+ 1 len)) 1))))
+          (else
+            (loop (+ 1 len) (cdr rest))))))
 
   )
