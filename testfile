@@ -1,0 +1,5 @@
+Begin %[embed
+        expr [nested expr]
+        {curly string} 'single string'] 
+{not curly string} [not expr] 
+%[another expr "with double string" and some empty values [] {} ""]
