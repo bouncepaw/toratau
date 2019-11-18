@@ -6,16 +6,6 @@
           (srfi 13)
           matchable)
 
-  (define (<text-block> lines)
-    ; where lines is Listof Cons<LineNo, String>
-    (define from-line (caar lines))
-    (define to-line (car (last lines)))
-    (define content (string-join (map cdr lines) "\n" 'infix))
-    (lambda (method)
-      (case method
-        ((range) (cons from-line to-line))
-        ((content) content))))
-
   (define (text->tokens chars)
     (let loop ((objects '()) (rest chars) (acc '()))
       (cond
