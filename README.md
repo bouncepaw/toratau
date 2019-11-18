@@ -56,12 +56,6 @@ Macros is shipped with a set of macros. User can redefine any of them and define
 
 Define a new macro called *macro-name* in current scope with such *definition*. User can redefine existing macros using this macro. Arguments can be accessed using `%1`..`%N` where N is number of arguments.
 
-```
-[define macro-name arguments definition]
-```
-
-The same thing, but the number of arguments is limited and they have unique names accessed by prefixing argument name with `%`. *arguments* is a string with every argument name separated by whitespace.
-
 Return empty string.
 
 #### rename
