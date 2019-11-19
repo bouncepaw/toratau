@@ -24,7 +24,14 @@
   ; (exec
   (string-substitute*
     definition
-    (map (lambda (id)
-           (cons (string-join (list "%" (number->string (+ 1 id))) "")
-                 (list-ref args id)))
-         (iota (length args)))))
+    (append
+      `(("%\\*" . ,(string-join args))
+        ("%@" . ,(string-join
+                   (map (lambda (arg)
+                          (string-join (list "{" arg "}") ""))
+                        args)))
+        ("%#" . ,(number->string (length args))))
+      (map (lambda (id)
+             (cons (string-join (list "%" (number->string (+ 1 id))) "")
+                   (list-ref args id)))
+           (iota (length args))))))

@@ -9,3 +9,12 @@
 %[proc main void
        [lines [println {"Hello world!"}]
               "return 0;"]]
+
+%[lines
+  [define foo bar]
+  [define analyze-args {
+Number: %#
+Unwrapped: %*
+Wrapped: %@}]
+  [analyze-args]
+  [analyze-args one two {three four} [foo]]]
