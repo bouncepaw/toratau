@@ -1,8 +1,9 @@
-Begin %[cat "_This is going to be seen clearly_"
-        expr [cat nested expr]
-        {curly string} 'single string'] 
-{not curly string} [not expr] 
-%[cat expr "with %[cat {__This one too__}] string" and some empty values {} ""]
 %[cat
-  [define negate {no u, %1 and %2}]
-  [negate friend, enemies and everyone]]
+  [define import {#include %1}]
+  [define proc {void %1 (%2) {%3}}]
+  [define println {printf("%s\n", %1);}]]
+
+%[import <stdio.h>]
+%[proc main void
+       [cat [println {"Hello world!"}]
+             "return 0;"]]
