@@ -110,3 +110,21 @@ Call macro called *macro-name* with arguments that are in *args* separated by wh
 
 Evaluate expression *expr* *n* times. Results of evaluation are then joined together with *joiner*, this value is then returned. If *joiner* is not passed, it is assumed as empty string.
 
+### String manipulating macros
+
+#### cat
+
+```
+[cat arg ...]
+```
+
+Return all `arg`s joined together with an empty string.
+
+#### lines
+
+```
+[lines arg ...]
+```
+
+Return all `arg`s joined together with a newline.
+

@@ -1,9 +1,11 @@
 %[cat
   [define import {#include %1}]
-  [define proc {void %1 (%2) {%3}}]
+  [define proc {void %1 (%2) {
+%3
+}}]
   [define println {printf("%s\n", %1);}]]
 
 %[import <stdio.h>]
 %[proc main void
-       [cat [println {"Hello world!"}]
-             "return 0;"]]
+       [lines [println {"Hello world!"}]
+              "return 0;"]]

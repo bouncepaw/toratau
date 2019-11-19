@@ -39,6 +39,9 @@
 (define (t-cat . args)
   (string-join args ""))
 
+(define (t-lines . args)
+  (string-join args "\n"))
+
 (define scope
   (alist->hash-table
     `(("define"  . ,t-define)
@@ -48,7 +51,8 @@
       ("ifdef"   . ,t-ifdef)
       ("apply"   . ,t-apply)
       ("dotimes" . ,t-dotimes)
-      ("cat"     . ,t-cat))))
+      ("cat"     . ,t-cat)
+      ("lines"   . ,t-lines))))
 
 (define definitions
   (alist->hash-table
@@ -59,5 +63,6 @@
       ("ifdef"   . "")
       ("apply"   . "")
       ("dotimes" . "")
-      ("cat"     . ""))))
+      ("cat"     . "")
+      ("lines"   . ""))))
 
