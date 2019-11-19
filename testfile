@@ -3,3 +3,6 @@ Begin %[cat "_This is going to be seen clearly_"
         {curly string} 'single string'] 
 {not curly string} [not expr] 
 %[cat expr "with %[cat {__This one too__}] string" and some empty values {} ""]
+%[cat
+  [define negate {no u, %1 and %2}]
+  [negate friend, enemies and everyone]]

@@ -18,3 +18,13 @@
 ;; them to corresponding function in the scope.
 (define ((list-head macro-name) . args)
   (apply (hash-table-ref scope macro-name) args))
+
+;; Used when defining custom macros. Return function that accepts args passed to the macro. Replce $N in definition with passed args. Return the result.
+(define ((definition->lambda definition) . args)
+  ; (exec
+  (string-substitute*
+    definition
+    (map (lambda (id)
+           (cons (string-join (list "%" (number->string (+ 1 id))) "")
+                 (list-ref args id)))
+         (iota (length args)))))

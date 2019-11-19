@@ -52,12 +52,12 @@
 
 (define definitions
   (alist->hash-table
-    '(("define" . "")
-      ("rename" . "")
-      ("defn" . "")
-      ("ifeq" . "")
-      ("ifdef" . "")
-      ("apply" . "")
+    '(("define"  . "")
+      ("rename"  . "")
+      ("defn"    . "")
+      ("ifeq"    . "")
+      ("ifdef"   . "")
+      ("apply"   . "")
       ("dotimes" . "")
       ("cat"     . ""))))
 

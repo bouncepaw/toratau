@@ -1,6 +1,7 @@
 (import (srfi 1)
         (srfi 13)
         (srfi 69)
+        regex
         matchable)
 
 ;; All chars from STDIN as list.
