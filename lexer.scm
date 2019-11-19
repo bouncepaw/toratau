@@ -1,3 +1,6 @@
+(import (srfi 1)
+        matchable)
+
 (define (text->tokens chars)
   (let loop ((objects '()) (rest chars) (acc '()))
     (cond

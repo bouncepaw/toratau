@@ -1,3 +1,5 @@
+(import (srfi 69))
+
 (define (t-define macro-name definition)
   (hash-table-set! definitions macro-name definition)
   (hash-table-set! scope macro-name (definition->lambda definition))

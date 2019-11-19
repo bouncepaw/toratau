@@ -1,3 +1,8 @@
+(import (srfi 13)
+        (srfi 69)
+        matchable
+        regex)
+
   ;; EXECute string as Toratau expression. STR gets wrapped in implicit prefixed brackets ("expr" becomes "%[expr]", "[expr]" becomes "%[[expr]]"). Thus, STR becomes a root Toratau expression. After that, it gets lexed, then parsed, then evaluated.
 (define (exec str)
   (let* ((str-wrapped (string-join (list "%[" str "]") ""))
