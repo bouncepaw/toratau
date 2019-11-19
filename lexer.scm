@@ -1,11 +1,3 @@
-  ;; EXECute string as Toratau expression. STR gets wrapped in implicit prefiexed brackets ("expr" becomes "%[expr]", "[expr]" becomes "%[[expr]]"). Thus, STR becomes a root Toratau expression.
-(define (exec str)
-  (let* ((str-wrapped (string-join (list "%[" str "]") ""))
-         (chars (string->list str-wrapped))
-         (tokens (text->tokens chars))
-         (the-true-token (cadr tokens)))
-    the-true-token))
-
 (define (text->tokens chars)
   (let loop ((objects '()) (rest chars) (acc '()))
     (cond

@@ -12,10 +12,12 @@
           (loop (cons char chars))))))
 
 (load "lexer.scm")
+(load "parse.scm")
+(load "scope.scm")
 
-;; All tokens.
+;; All tokens, AST.
 (define tokens (text->tokens input-chars))
 
-(write tokens)
+(display (eval (parse-ast tokens)))
 (newline)
 

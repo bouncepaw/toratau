@@ -1,5 +1,5 @@
-Begin %[embed
-        expr [nested expr]
+Begin %[cat "_This is going to be seen clearly_"
+        expr [cat nested expr]
         {curly string} 'single string'] 
 {not curly string} [not expr] 
-%[another expr "with double string" and some empty values [] {} ""]
+%[cat expr "with %[cat {__This one too__}] string" and some empty values {} ""]

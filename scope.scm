@@ -1,23 +1,3 @@
-(define scope
-  (alist->hash-table
-    `(("define"  . ,t-define)
-      ("rename"  . ,t-rename)
-      ("defn"    . ,t-defn)
-      ("ifeq"    . ,t-ifeq)
-      ("ifdef"   . ,t-ifdef)
-      ("apply"   . ,t-apply)
-      ("dotimes" . ,t-dotimes))))
-
-(define definitions
-  (alist->hash-table
-    '(("define" . "")
-      ("rename" . "")
-      ("defn" . "")
-      ("ifeq" . "")
-      ("ifdef" . "")
-      ("apply" . "")
-      ("dotimes" . ""))))
-
 (define (t-define macro-name definition)
   (hash-table-set! definitions macro-name definition)
   (hash-table-set! scope macro-name (definition->lambda definition))
@@ -55,3 +35,29 @@
     (map exec
          (make-list n expr))
     (if (null? joiner) "" joiner)))
+
+(define (t-cat . args)
+  (string-join args ""))
+
+(define scope
+  (alist->hash-table
+    `(("define"  . ,t-define)
+      ("rename"  . ,t-rename)
+      ("defn"    . ,t-defn)
+      ("ifeq"    . ,t-ifeq)
+      ("ifdef"   . ,t-ifdef)
+      ("apply"   . ,t-apply)
+      ("dotimes" . ,t-dotimes)
+      ("cat"     . ,t-cat))))
+
+(define definitions
+  (alist->hash-table
+    '(("define" . "")
+      ("rename" . "")
+      ("defn" . "")
+      ("ifeq" . "")
+      ("ifdef" . "")
+      ("apply" . "")
+      ("dotimes" . "")
+      ("cat"     . ""))))
+
