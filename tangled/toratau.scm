@@ -1,6 +1,4 @@
-(import (srfi 1)
-        
-        )
+(import (srfi 1))
 
 ;; All chars from STDIN as list.
 (define input-chars
@@ -10,9 +8,9 @@
           (reverse chars)
           (loop (cons char chars))))))
 
-(load "lexer.scm")
-(load "parse.scm")
-(load "scope.scm")
+(include-relative "lexer.scm")
+(include-relative "parse.scm")
+(include-relative "scope.scm")
 
 ;; All tokens, AST.
 (define tokens (text->tokens input-chars))

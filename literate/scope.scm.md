@@ -5,6 +5,9 @@ This file has things related to scope along with built-in functions.
 ```scheme
 ;; Hash table
 (import (srfi 69))
+
+(define scope '())
+(define definitions '())
 ```
 
 ## Built-in macros
