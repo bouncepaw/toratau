@@ -9,3 +9,6 @@ backup_exec:
 
 tangle:
 	cat scope.scm.md | ~/bin/toratau | ~/bin/qara2c
+
+weave:
+	cat scope.scm.md | ~/bin/toratau | ~/bin/qara2c --doc
