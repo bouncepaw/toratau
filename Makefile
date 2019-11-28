@@ -6,6 +6,7 @@ build: tangle weave compile
 
 tangle:
 	cat literate/scope.scm.md | $(toratau) | $(qaraidel) > tangled/scope.scm
+	cat literate/lexer.scm.md | $(qaraidel) > tangled/lexer.scm
 
 weave:
 	cat literate/scope.scm.md | $(toratau) | $(qaraidel) --weave > doc/scope.md
