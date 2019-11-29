@@ -26,17 +26,21 @@
 
 ;; Used when defining custom macros. Return function that accepts args passed to the macro. Replce $N in definition with passed args. Return the result.
 (define ((definition->lambda definition) . args)
-  ; (exec
-  (string-substitute*
-    definition
-    (append
-      `(("%\\*" . ,(string-join args))
-        ("%@" . ,(string-join
-                   (map (lambda (arg)
-                          (string-join (list "{" arg "}") ""))
-                        args)))
-        ("%#" . ,(number->string (length args))))
-      (map (lambda (id)
-             (cons (string-join (list "%" (number->string (+ 1 id))) "")
-                   (list-ref args id)))
-           (iota (length args))))))
+  (eval
+    (parse-ast
+      (text->tokens
+        (string->list
+          (string-substitute*
+            definition
+            (append
+              `(("%\\*" . ,(string-join args))
+                ("%@" . ,(string-join
+                           (map (lambda (arg)
+                                  (string-join (list "{" arg "}") ""))
+                                args)))
+                ("%#" . ,(number->string (length args))))
+              (map (lambda (id)
+                     (cons (string-join (list "%" (number->string (+ 1 id))) "")
+                           (list-ref args id)))
+                   (iota (length args))))))))))
+
