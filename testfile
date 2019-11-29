@@ -19,5 +19,6 @@ Wrapped: %@}]
   [analyze-args]
   [analyze-args one two {three four} [foo]]]
 
-%[include testfile2]
+%[pipe-to-shell [include testfile2] "head -n 1"]
 %[new-macro]
+

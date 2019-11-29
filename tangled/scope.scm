@@ -1,6 +1,7 @@
 ;; Hash table
 (import (srfi 69)
-        (chicken io))
+        (chicken io)
+        (chicken process))
 
 (define scope '())
 (define definitions '())
@@ -69,6 +70,15 @@
 
     (string-join args "\n")
 )
+(define (t-pipe-to-shell text command) 
+
+    (define-values (input output _pid) (process command))
+    (display text output)
+    (close-output-port output)
+    (define result (read-string #f input))
+    (close-input-port input)
+    result
+)
 (define scope
   (alist->hash-table
     `(("define"  . ,t-define)
@@ -80,7 +90,8 @@
       ("dotimes" . ,t-dotimes)
       ("include" . ,t-include)
       ("cat"     . ,t-cat)
-      ("lines"   . ,t-lines))))
+      ("lines"   . ,t-lines)
+      ("pipe-to-shell" . ,t-pipe-to-shell))))
 (define definitions
   (alist->hash-table
     '(("define"  . "")
@@ -92,4 +103,5 @@
       ("dotimes" . "")
       ("include" . "")
       ("cat"     . "")
-      ("lines"   . ""))))
+      ("lines"   . "")
+      ("pipe-to-shell" . ""))))

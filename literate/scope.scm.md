@@ -5,7 +5,8 @@ This file has things related to scope along with built-in functions.
 ```scheme
 ;; Hash table
 (import (srfi 69)
-        (chicken io))
+        (chicken io)
+        (chicken process))
 
 (define scope '())
 (define definitions '())
@@ -204,6 +205,29 @@ World
     (string-join args "\n")
 }]
 
+### OS API
+
+This thing is quite dangerous, as user can run any command. If you care about that redefine the following macro so it does nothing:
+
+    %[define pipe-to-shell {}]
+
+%[metadefine pipe-to-shell {text command}
+{
+Pipe *text* to *command* and return the result.
+
+    [pipe-to-shell [include file] "head -n 1"]
+    is same as running this in shell:
+    cat file | head -n 1
+} {
+
+    (define-values (input output _pid) (process command))
+    (display text output)
+    (close-output-port output)
+    (define result (read-string #f input))
+    (close-input-port input)
+    result
+}]
+
 ## Scope, etc
 
 `scope` is hash-table where each key is a string that corresponds to a macro name and value is function that gets applied to arguments of the macro. Out of the box, only those above functions are in the scope. By defining and redefining macros, user can mutate scope.
@@ -220,7 +244,8 @@ World
       ("dotimes" . ,t-dotimes)
       ("include" . ,t-include)
       ("cat"     . ,t-cat)
-      ("lines"   . ,t-lines))))
+      ("lines"   . ,t-lines)
+      ("pipe-to-shell" . ,t-pipe-to-shell))))
 ```
 
 Each macro has a definition which is a string that user passed when defining their macro with `define` macro. Built-in functions have empty definition.
@@ -237,7 +262,8 @@ Each macro has a definition which is a string that user passed when defining the
       ("dotimes" . "")
       ("include" . "")
       ("cat"     . "")
-      ("lines"   . ""))))
+      ("lines"   . "")
+      ("pipe-to-shell" . ""))))
 ```
 
 

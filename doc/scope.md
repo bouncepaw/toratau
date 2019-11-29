@@ -152,6 +152,21 @@ Return all `arg`s joined together with a newline.
 World
 
 
+### OS API
+
+This thing is quite dangerous, as user can run any command. If you care about that redefine the following macro so it does nothing:
+
+#### pipe-to-shell
+
+    [pipe-to-shell text command]
+
+Pipe *text* to *command* and return the result.
+
+    [pipe-to-shell [include file] "head -n 1"]
+    is same as running this in shell:
+    cat file | head -n 1
+
+
 ## Scope, etc
 
 `scope` is hash-table where each key is a string that corresponds to a macro name and value is function that gets applied to arguments of the macro. Out of the box, only those above functions are in the scope. By defining and redefining macros, user can mutate scope.
