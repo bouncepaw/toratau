@@ -1,0 +1,5 @@
+Contents of second file.
+
+%[define new-macro {If you see this, it's OK.}]
+
+End of second file.

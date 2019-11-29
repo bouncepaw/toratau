@@ -62,7 +62,7 @@ Return definition of a macro with such *macro-name*.
     [defn welcome] → Hello, %1!
 
 
-### Conditional and meta macros
+### Conditional
 
 #### ifeq
 
@@ -85,6 +85,8 @@ If macro called *macro-name* is defined, then return *then*, else return *else*.
     [ifdef foo defined undefined] → defined
     [ifdef quux defined undefined] → undefined
 
+
+### Meta macros
 
 #### shift
 
@@ -111,6 +113,23 @@ Evaluate expression *expr* *n* times. Results of evaluation are then joined toge
 
     [dotimes 3 hi] → hihihi
     [dotimes 3 hi { }] → hi hi hi
+
+
+#### include
+
+    [include filename]
+
+Read *filename*, evaluate is as Toratau code in current scope, return the result.
+
+    In file1:
+    Contents.
+
+    In file2:
+    [include file1]
+
+    Result of file2:
+    Contents.
+
 
 ### String manipulating macros
 

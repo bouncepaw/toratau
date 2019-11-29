@@ -4,7 +4,8 @@ This file has things related to scope along with built-in functions.
 
 ```scheme
 ;; Hash table
-(import (srfi 69))
+(import (srfi 69)
+        (chicken io))
 
 (define scope '())
 (define definitions '())
@@ -94,7 +95,7 @@ Return definition of a macro with such *macro-name*.
     (hash-table-ref definitions macro-name)
 }]
 
-### Conditional and meta macros
+### Conditional
 
 %[metadefine ifeq {str1 str2 thenc . elsec}
 {
@@ -124,6 +125,8 @@ If macro called *macro-name* is defined, then return *then*, else return *else*.
         (if (null? elsec) "" (car elsec)))
 }]
 
+### Meta macros
+
 %[metadefine shift {arg1 . args}
 {
 Return all `argn`s joined with spaces.
@@ -150,9 +153,32 @@ Evaluate expression *expr* *n* times. Results of evaluation are then joined toge
     [dotimes 3 hi] → hihihi
     [dotimes 3 hi { }] → hi hi hi
 } {
+
     (string-join
       (map exec (make-list n expr))
       (if (null? joiner) "" (car joiner)))
+}]
+
+%[metadefine include filename
+{
+Read *filename*, evaluate is as Toratau code in current scope, return the result.
+
+    In file1:
+    Contents.
+
+    In file2:
+    [include file1]
+
+    Result of file2:
+    Contents.
+} {
+
+    (define input (open-input-file filename))
+    (define text (read-string #f input))
+    (close-input-port input)
+    (eval
+      (parse-ast
+        (text->tokens (string->list text))))
 }]
 
 ### String manipulating macros
@@ -192,6 +218,7 @@ World
       ("ifdef"   . ,t-ifdef)
       ("apply"   . ,t-apply)
       ("dotimes" . ,t-dotimes)
+      ("include" . ,t-include)
       ("cat"     . ,t-cat)
       ("lines"   . ,t-lines))))
 ```
@@ -208,6 +235,7 @@ Each macro has a definition which is a string that user passed when defining the
       ("ifdef"   . "")
       ("apply"   . "")
       ("dotimes" . "")
+      ("include" . "")
       ("cat"     . "")
       ("lines"   . ""))))
 ```

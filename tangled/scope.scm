@@ -1,5 +1,6 @@
 ;; Hash table
-(import (srfi 69))
+(import (srfi 69)
+        (chicken io))
 
 (define scope '())
 (define definitions '())
@@ -46,9 +47,19 @@
     (exec (string-join args))
 )
 (define (t-dotimes n expr . joiner) 
+
     (string-join
       (map exec (make-list n expr))
       (if (null? joiner) "" (car joiner)))
+)
+(define (t-include filename) 
+
+    (define input (open-input-file filename))
+    (define text (read-string #f input))
+    (close-input-port input)
+    (eval
+      (parse-ast
+        (text->tokens (string->list text))))
 )
 (define (t-cat . args) 
 
@@ -67,6 +78,7 @@
       ("ifdef"   . ,t-ifdef)
       ("apply"   . ,t-apply)
       ("dotimes" . ,t-dotimes)
+      ("include" . ,t-include)
       ("cat"     . ,t-cat)
       ("lines"   . ,t-lines))))
 (define definitions
@@ -78,5 +90,6 @@
       ("ifdef"   . "")
       ("apply"   . "")
       ("dotimes" . "")
+      ("include" . "")
       ("cat"     . "")
       ("lines"   . ""))))

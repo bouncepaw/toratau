@@ -131,3 +131,17 @@ Curly string lexing is cool. Nesting is supported! TODO: support nesting express
 
 Double string lexing is good. TODO: drop support nesting expressions.
 
+```scheme
+(define (lex-double-string chars)
+  (let loop ((len 0) (rest (cdr chars)))
+    (cond
+      ((and (equal? (car rest) #\\)
+            (equal? (cadr rest) #\"))
+       (loop (+ 1 len) (cddr rest)))
+      ((equal? (car rest) #\")
+       (values len
+               (cdr rest)
+               (text->tokens (drop (take chars (+ 1 len)) 1))))
+      (else
+        (loop (+ 1 len) (cdr rest))))))
+```
