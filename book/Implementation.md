@@ -12,7 +12,8 @@ All of the dependencies are either built in Chicken Scheme distribution or are e
         (chicken io)
         (chicken process) ; Piping, used in pipe-to-shell
         matchable ; Pattern matching
-        regex)
+        regex
+        (clojurian syntax))
 ```
 
 ## Including
