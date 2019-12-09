@@ -4,11 +4,7 @@ This file has things related to scope along with built-in functions.
 
 ```scheme
 ;; Hash table
-(import (srfi 69)
-        (chicken io))
-
-(define scope '())
-(define definitions '())
+(import (chicken io))
 ```
 
 ## Built-in macros
@@ -24,6 +20,8 @@ Defined using mixture of Qaraidel, Toratau and Chicken Scheme :)
 
 ```scheme
 (define (t-%1 %2) %4)
+(hash-table-set! scope "%1" t-%1)
+(hash-table-set! definitions "%1" "")
 ```
 }]
 
@@ -203,41 +201,4 @@ World
 
     (string-join args "\n")
 }]
-
-## Scope, etc
-
-`scope` is hash-table where each key is a string that corresponds to a macro name and value is function that gets applied to arguments of the macro. Out of the box, only those above functions are in the scope. By defining and redefining macros, user can mutate scope.
-
-```scheme
-(define scope
-  (alist->hash-table
-    `(("define"  . ,t-define)
-      ("rename"  . ,t-rename)
-      ("defn"    . ,t-defn)
-      ("ifeq"    . ,t-ifeq)
-      ("ifdef"   . ,t-ifdef)
-      ("apply"   . ,t-apply)
-      ("dotimes" . ,t-dotimes)
-      ("include" . ,t-include)
-      ("cat"     . ,t-cat)
-      ("lines"   . ,t-lines))))
-```
-
-Each macro has a definition which is a string that user passed when defining their macro with `define` macro. Built-in functions have empty definition.
-
-```scheme
-(define definitions
-  (alist->hash-table
-    '(("define"  . "")
-      ("rename"  . "")
-      ("defn"    . "")
-      ("ifeq"    . "")
-      ("ifdef"   . "")
-      ("apply"   . "")
-      ("dotimes" . "")
-      ("include" . "")
-      ("cat"     . "")
-      ("lines"   . ""))))
-```
-
 
