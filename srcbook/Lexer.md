@@ -20,7 +20,8 @@ During the lexing all token types get reduced to just two:
 
 ```scheme
 (import matchable
-        (srfi 1))
+        (srfi 1)
+        (srfi 13))
 ```
 
 ## Public API

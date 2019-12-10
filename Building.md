@@ -22,6 +22,7 @@ tangle:
 	$(toratau) < srcbook/Lexer.md | $(qaraidel) > tangled/lexer.scm
 	$(qaraidel) < srcbook/Scope.md > tangled/scope.scm
 	$(toratau) < srcbook/Prelude.md | $(qaraidel) >> tangled/scope.scm
+	cat srcbook/Parsing.md |          $(qaraidel) > tangled/parse.scm
 ```
 
 Compilation should work without surprises but I think some checks or tests should be added to see if the code should be really compiled:

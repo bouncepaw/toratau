@@ -1,42 +1,43 @@
-(import (srfi 13)
-        (srfi 69)
-        matchable
-        regex)
-
-  ;; EXECute string as Toratau expression. STR gets wrapped in implicit prefixed brackets ("expr" becomes "%[expr]", "[expr]" becomes "%[[expr]]"). Thus, STR becomes a root Toratau expression. After that, it gets lexed, then parsed, then evaluated.
+(import (clojurian syntax)
+        regex
+        (srfi 13)
+        (srfi 69))
 (define (exec str)
-  (let* ((str-wrapped (string-join (list "%[" str "]") ""))
-         (chars (string->list str-wrapped))
-         (tokens (text->tokens chars))
-         (parsed-expr (parse-ast tokens)))
-    (eval parsed-expr)))
-
-;; Expr = (Expr | String) ...
+  (-> str
+      string->list
+      text->tokens
+      parse-ast
+      eval))
 (define (parse-ast expr)
   (cond
     ((string? expr) expr)
     ((null? expr) expr)
-    (else (let ((parsed-expr (map parse-ast expr)))
-            (cons (list-head (car parsed-expr)) (cdr parsed-expr))))))
-
-;; Return function that receives any number of args and applies all of
-;; them to corresponding function in the scope.
+    (else
+      (let ((parsed-expr (map parse-ast expr)))
+        (cons (list-head (car parsed-expr))
+              (cdr parsed-expr))))))
 (define ((list-head macro-name) . args)
   (apply (hash-table-ref scope macro-name) args))
-
-;; Used when defining custom macros. Return function that accepts args passed to the macro. Replce $N in definition with passed args. Return the result.
 (define ((definition->lambda definition) . args)
-  ; (exec
-  (string-substitute*
-    definition
-    (append
-      `(("%\\*" . ,(string-join args))
-        ("%@" . ,(string-join
-                   (map (lambda (arg)
-                          (string-join (list "{" arg "}") ""))
+  ;; This is alist which defines what patterns should be replaced.
+  ;; %* is all args joined together
+  ;; %@ is all args joined together but quoted beforehand
+  ;; %# is number of args
+  (define special-alist
+    `(("%\\*" . ,(string-join args))
+      ("%@"   . ,(string-join
+                   (map (lambda (arg) (string-join (list "{" arg "}")))
                         args)))
-        ("%#" . ,(number->string (length args))))
-      (map (lambda (id)
-             (cons (string-join (list "%" (number->string (+ 1 id))) "")
-                   (list-ref args id)))
-           (iota (length args))))))
+      ("%#"   . ,(number->string (length args)))))
+  ;; This is alist which defines patterns for arguments to be replaced.
+  (define args-alist
+    (map (lambda (id)
+           (cons (string-join (list "%" (number->string (+ 1 id))) "")
+                 (list-ref args id)))
+         (iota (length args))))
+  (-> definition
+      (string-substitute* (append special-alist args-alist))
+      string->list
+      text->tokens
+      parse-ast
+      eval))

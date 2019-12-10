@@ -1,7 +1,9 @@
 (import (srfi 69))
 (define scope (make-hash-table))
 (define definitions (make-hash-table))
-(import (chicken io))
+(import (chicken io)
+        (srfi 13)
+        (srfi 69))
 (define (t-define macro-name definition) 
 
     (hash-table-set! definitions macro-name definition)
