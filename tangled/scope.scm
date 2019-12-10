@@ -1,7 +1,6 @@
 (import (srfi 69))
 (define scope (make-hash-table))
 (define definitions (make-hash-table))
-;; Hash table
 (import (chicken io))
 (define (t-define macro-name definition) 
 
@@ -47,9 +46,26 @@
 )
 (hash-table-set! scope "ifdef" t-ifdef)
 (hash-table-set! definitions "ifdef" "")
-(define (t-shift arg1 . args) 
+(define (t-cat . args) 
 
-    (string-join args)
+    (string-join args "")
+)
+(hash-table-set! scope "cat" t-cat)
+(hash-table-set! definitions "cat" "")
+(define (t-lines . args) 
+
+    (string-join args "\n")
+)
+(hash-table-set! scope "lines" t-lines)
+(hash-table-set! definitions "lines" "")
+(define (t-shift . arg) 
+
+    (cond
+      ((null? arg) "")
+      ((eq? 1 (length arg)) "")
+      (else
+        (string-join (map (lambda (a) (string-join (list "{" a "}")))
+                          (cdr arg)))))
 )
 (hash-table-set! scope "shift" t-shift)
 (hash-table-set! definitions "shift" "")
@@ -78,15 +94,3 @@
 )
 (hash-table-set! scope "include" t-include)
 (hash-table-set! definitions "include" "")
-(define (t-cat . args) 
-
-    (string-join args "")
-)
-(hash-table-set! scope "cat" t-cat)
-(hash-table-set! definitions "cat" "")
-(define (t-lines . args) 
-
-    (string-join args "\n")
-)
-(hash-table-set! scope "lines" t-lines)
-(hash-table-set! definitions "lines" "")

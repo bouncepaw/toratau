@@ -1,18 +1,16 @@
-# Scope
+# Prelude
 
-This file has things related to scope along with built-in functions.
+These are built-in macros. Using them, it is trivial to implement any macro you need. If there's a macro missing without which it is non-trivial to implement any macro, it should be added.
+
+These built-ins are written in Scheme, unlike macros defined by a user.
 
 ```scheme
-;; Hash table
 (import (chicken io))
 ```
 
-## Built-in macros
+To ease creation of macros, there's that macro:
 
-Defined using mixture of Qaraidel, Toratau and Chicken Scheme :)
-
-%[define metadefine {
-#### %1
+%[define macro {%1
 
     [%1 %2]
 
@@ -25,11 +23,13 @@ Defined using mixture of Qaraidel, Toratau and Chicken Scheme :)
 ```
 }]
 
-### Macro-defining macros
+## The macros
 
-%[metadefine define {macro-name definition}
-{
-Define a new macro called *macro-name* in current scope with such *definition*. User can redefine existing macros using this macro. Arguments can be accessed using `%1`..`%N` where N is number of arguments. `%#` means number of passed arguments. `%*` means all arguments joined with spaces. `%@` means all arguments wrapped in `{}` and then joined with spaces.
+### Metamacros
+
+#### %[macro define {macro-name definition} {
+
+Define a new macro called *macro-name* in current scope with such *definition*. User can redefine existing macros using this macro. Arguments can be accessed using `%1`..`%N` where N is number of passed arguments. `%#` means number of passed arguments. `%*` means all passed arguments joined with spaces. `%@` means all arguments wrapped in `{}` and then joined with spaces.
 
 Return empty string.
 
@@ -60,8 +60,8 @@ Return empty string.
     ""
 }]
 
-%[metadefine rename {old-macro-name new-macro-name}
-{
+#### %[macro rename {old-macro-name new-macro-name} {
+
 Rename a macro called *old-macro-name* to *new-macro-name*. Is is no longer available as *old-macro-name*. Return empty string.
 
     [define foo bar]
@@ -82,8 +82,8 @@ Rename a macro called *old-macro-name* to *new-macro-name*. Is is no longer avai
     ""
 }]
 
-%[metadefine defn macro-name
-{
+#### %[macro defn macro-name {
+
 Return definition of a macro with such *macro-name*.
 
     [define welcome {Hello, %1!}]
@@ -95,12 +95,12 @@ Return definition of a macro with such *macro-name*.
 
 ### Conditional
 
-%[metadefine ifeq {str1 str2 thenc . elsec}
-{
-If *str1* equals *str2*, then return *then*, else return *else*. If *else* is not passed, then it is assumed that it is empty string.
+#### %[macro ifeq {str1 str2 thenc . elsec} {
+
+If *str1* equals *str2*, then return *thenc*, else return *elsec*. If *elsec* is not passed, then it is assumed that it is empty string.
 
     [ifeq 1 1 true] → true
-    [ifeq 1 2 true] → EMPTY STRING
+    [ifeq 1 2 true] → 
     [ifeq 1 2 true false] → false
 } {
 
@@ -109,9 +109,9 @@ If *str1* equals *str2*, then return *then*, else return *else*. If *else* is no
         (if (null? elsec) "" (car elsec)))
 }]
 
-%[metadefine ifdef {macro-name thenc . elsec}
-{
-If macro called *macro-name* is defined, then return *then*, else return *else*. If *else* is not passed, then it is assumed that it is empty string.
+#### %[macro ifdef {macro-name thenc . elsec} {
+
+If macro called *macro-name* is defined, then return *thenc*, else return *elsec*. If *elsec* is not passed, then it is assumed that it is empty string.
 
     [define foo bar]
     [ifdef foo defined undefined] → defined
@@ -123,18 +123,51 @@ If macro called *macro-name* is defined, then return *then*, else return *else*.
         (if (null? elsec) "" (car elsec)))
 }]
 
-### Meta macros
+### String manipulating macros
 
-%[metadefine shift {arg1 . args}
-{
-Return all `argn`s joined with spaces.
+#### %[macro cat {. args} {
+
+Return all `args` joined together with an empty string.
+
+    [cat Hello World] → HelloWorld
 } {
 
-    (string-join args)
+    (string-join args "")
 }]
 
-%[metadefine apply {macro-name . args}
-{
+#### %[macro lines {. args} {
+
+Return all `args` joined together with a newline.
+
+    [lines Hello World] → Hello
+    World
+} {
+
+    (string-join args "\n")
+}]
+
+### Miscellaneous macros
+
+#### %[macro shift {. arg} {
+
+Wrap every `arg` in `{}`, return all but the first one joined into one string.
+
+    [shift] → 
+    [shift a] → 
+    [shift a b] → b
+    [shift {a b} c d {e f g}] → {c} {d} {e f g}
+} {
+
+    (cond
+      ((null? arg) "")
+      ((eq? 1 (length arg)) "")
+      (else
+        (string-join (map (lambda (a) (string-join (list "{" a "}")))
+                          (cdr arg)))))
+}]
+
+#### %[macro apply {macro-name . args} {
+
 Call macro called *macro-name* with arguments that are in *args* separated by whitespace. Any number of *args* can be passed, they will be joined by whitespace together first.
 
     [define multi-hi {Hi, %1, %2 and %3}]
@@ -144,8 +177,8 @@ Call macro called *macro-name* with arguments that are in *args* separated by wh
     (exec (string-join args))
 }]
 
-%[metadefine dotimes {n expr . joiner}
-{
+#### %[macro dotimes {n expr . joiner} {
+
 Evaluate expression *expr* *n* times. Results of evaluation are then joined together with *joiner*, this value is then returned. If *joiner* is not passed, it is assumed as empty string.
 
     [dotimes 3 hi] → hihihi
@@ -157,8 +190,8 @@ Evaluate expression *expr* *n* times. Results of evaluation are then joined toge
       (if (null? joiner) "" (car joiner)))
 }]
 
-%[metadefine include filename
-{
+#### %[macro include filename {
+
 Read *filename*, evaluate is as Toratau code in current scope, return the result.
 
     In file1:
@@ -177,28 +210,5 @@ Read *filename*, evaluate is as Toratau code in current scope, return the result
     (eval
       (parse-ast
         (text->tokens (string->list text))))
-}]
-
-### String manipulating macros
-
-%[metadefine cat {. args}
-{
-Return all `args` joined together with an empty string.
-
-    [cat Hello World] → HelloWorld
-} {
-
-    (string-join args "")
-}]
-
-%[metadefine lines {. args}
-{
-Return all `arg`s joined together with a newline.
-
-    [lines Hello World] → Hello
-World
-} {
-
-    (string-join args "\n")
 }]
 
