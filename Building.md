@@ -5,8 +5,8 @@ After unsuccessful attempt to literatify all of Toratau, I'm going to make every
 Toratau depends on itself and on [Qaraidel for C](https://github.com/bouncepaw/qara2c). A safe version of Toratau has to be kept. Define paths to both Tora and Qara:
 
 ```make
-#toratau := ./toratau
-toratau := ~/bin/toratau
+toratau := ./toratau
+#toratau := ~/bin/toratau
 qaraidel := ~/bin/qara2c
 ```
 
@@ -19,9 +19,9 @@ Only some files have been literatified, and it's done wrong. See the other branc
 
 ```make
 tangle:
+	$(toratau) < srcbook/Lexer.md | $(qaraidel) > tangled/lexer.scm
 	$(qaraidel) < srcbook/Scope.md > tangled/scope.scm
 	$(toratau) < srcbook/Prelude.md | $(qaraidel) >> tangled/scope.scm
-	cat literate/lexer.scm.md | $(qaraidel) > tangled/lexer.scm
 ```
 
 Compilation should work without surprises but I think some checks or tests should be added to see if the code should be really compiled:

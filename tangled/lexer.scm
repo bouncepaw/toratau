@@ -1,19 +1,54 @@
-(import (srfi 1)
-        matchable)
+(import matchable
+        (srfi 1))
 (define (text->tokens chars)
-  (let loop ((objects '()) (rest chars) (acc '()))
+  (let loop ((tokens '()) (rest chars) (acc '()))
     (cond
       ((null? rest)
-       (cons "cat" (reverse (cons (list->string (reverse acc)) objects))))
+       (cons "cat" (reverse (cons (list->string (reverse acc)) tokens))))
       ((and (equal? (car rest) #\%)
             (equal? (cadr rest) #\[))
        (let-values (((last-text) (list->string (reverse acc)))
                     ((_chars-taken new-rest last-expr) (lex-expr (cdr rest))))
-         (loop (cons last-expr (cons last-text objects))
+         (loop (cons last-expr (cons last-text tokens))
                new-rest
                '())))
       (else
-        (loop objects (cdr rest) (cons (car rest) acc))))))
+        (loop tokens (cdr rest) (cons (car rest) acc))))))
+
+
+
+(define (lex-whitespace chars)
+  (let next-char ((len 1) (rest (cdr chars)))
+    (cond ((char-whitespace? (car rest)) (next-char (+ 1 len) (cdr rest))) (else (values len rest "")))))
+
+
+(define (lex-raw-string chars)
+  (let next-char ((len 1) (rest (cdr chars)))
+    (cond ((char-whitespace? (car rest)) (values len (cdr rest) (list->string (take chars len)))) ((equal? (car rest)  #\] ) (values len rest (list->string (take chars len)))) (else (next-char (+ 1 len) (cdr rest))))))
+
+
+(define (lex-single-string chars)
+  (let next-char ((len 1) (rest (cdr chars)))
+    (cond ((equal? (car rest)  #\' ) (values len (cdr rest) (list->string (take chars (+ 1 len))))) ((and (equal? (car rest) #\\)
+           (equal? (cadr rest) #\'))
+      (next-char (+ 2 len) (cddr rest))) (else (next-char (+ 1 len) (cdr rest))))))
+
+
+(define (lex-curly-string chars)
+  (let next-char ((len 1) (rest (cdr chars)))
+    (cond ((equal? (car rest)  #\\ ) (if (or (equal? (cadr rest) #\{)
+               (equal? (cadr rest) #\}))
+           (next-char (+ 2 len) (cddr rest))
+           (next-char (+ 1 len) (cdr rest)))) ((equal? (car rest)  #\{ ) (let-values (((new-len new-rest _str) (lex-curly-string rest)))
+         (next-char (+ len new-len) new-rest))) ((equal? (car rest)  #\} ) (values len (cdr rest) (list->string (drop (take chars len) 1)))) (else (next-char (+ 1 len) (cdr rest))))))
+
+
+(define (lex-double-string chars)
+  (let next-char ((len 1) (rest (cdr chars)))
+    (cond ((equal? (car rest)  #\" ) (values len (cdr rest) (list->string (take chars (+ 1 len))))) ((and (equal? (car rest) #\\)
+          (equal? (cadr rest) #\"))
+      (next-char (+ 2 len) (cddr rest))) (else (next-char (+ 1 len) (cdr rest))))))
+
 (define (lex-expr chars)
   (let loop ((objects '()) (rest (cdr chars)))
     (cond
@@ -31,64 +66,8 @@
                               (#\" lex-double-string)
                               ((? char-whitespace? _) lex-whitespace)
                               (_ lex-raw-string)) rest)))
-          (loop (if (and (equal? "" object) (char-whitespace? (car rest)))
+          (loop (if (char-whitespace? (car rest))
                     ; ignore empty strings produced by whitespace
                     objects
                     (cons object objects))
                 new-rest))))))
-(define (lex-whitespace chars)
-  (let loop ((len 1) (rest chars))
-    (if (char-whitespace? (car rest))
-        (loop (+ 1 len) (cdr rest))
-        (values len rest ""))))
-(define (lex-raw-string chars)
-  (let loop ((len 1) (rest (cdr chars)))
-    (cond
-      ((char-whitespace? (car rest))
-       (values len (cdr rest) (list->string (take chars len))))
-      ((equal? (car rest) #\])
-       (values len rest (list->string (take chars len))))
-      (else
-        (loop (+ 1 len) (cdr rest))))))
-(define (lex-single-string chars)
-  (let loop ((len 1) (rest (cdr chars)))
-    (case (car rest)
-      ((#\')
-       (values (+ 1 len)
-               (cdr rest)
-               (list->string (drop (take chars len) 1))))
-      ((#\\)
-       (if (equal? #\' (cadr rest))
-           (loop (+ 2 len) (cddr rest))
-           (loop (+ 1 len) (cdr rest))))
-      (else
-        (loop (+ 1 len) (cdr rest))))))
-(define (lex-curly-string chars)
-  (let loop ((len 1) (rest (cdr chars)))
-    (case (car rest)
-      ((#\\)
-       (if (or (equal? (cadr rest) #\{)
-               (equal? (cadr rest) #\}))
-           (loop (+ 2 len) (cddr rest))
-           (loop (+ 1 len) (cdr rest))))
-      ((#\{)
-       (let-values (((new-len new-rest _str) (lex-curly-string rest)))
-         (loop (+ len new-len) new-rest)))
-      ((#\})
-       (values (+ 1 len)
-               (cdr rest)
-               (list->string (drop (take chars len) 1))))
-      (else
-        (loop (+ 1 len) (cdr rest))))))
-(define (lex-double-string chars)
-  (let loop ((len 0) (rest (cdr chars)))
-    (cond
-      ((and (equal? (car rest) #\\)
-            (equal? (cadr rest) #\"))
-       (loop (+ 1 len) (cddr rest)))
-      ((equal? (car rest) #\")
-       (values len
-               (cdr rest)
-               (text->tokens (drop (take chars (+ 1 len)) 1))))
-      (else
-        (loop (+ 1 len) (cdr rest))))))

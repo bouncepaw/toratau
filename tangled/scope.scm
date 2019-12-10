@@ -65,8 +65,7 @@
       ((eq? 1 (length arg)) "")
       (else
         (string-join (map (lambda (a) (string-join (list "{" a "}")))
-                          (cdr arg)))))
-)
+                          (cdr arg))))))
 (hash-table-set! scope "shift" t-shift)
 (hash-table-set! definitions "shift" "")
 (define (t-apply macro-name . args) 
