@@ -4,13 +4,12 @@ qaraidel := ~/bin/qara2c
 build: tangle compile
 	echo "Build Toratau"
 tangle:
-	$(toratau) < srcbook/Lexer.md | $(qaraidel) > tangled/lexer.scm
-	$(qaraidel) < srcbook/Scope.md > tangled/scope.scm
-	$(toratau) < srcbook/Prelude.md | $(qaraidel) >> tangled/scope.scm
-	cat srcbook/Parsing.md |          $(qaraidel) > tangled/parse.scm
+	cd srcbook && .$(toratau) < Implementation.md | $(qaraidel) > tangled_src.scm
+	cd ..
+	mv srcbook/tangled_src.scm .
 compile:
-	chicken-csc tangled/toratau.scm -o toratau
+	chicken-csc tangled_src.scm -o toratau
 clean:
-	rm toratau
+	rm tangled_src.scm
 backup_exec:
 	cp ./toratau ~/bin

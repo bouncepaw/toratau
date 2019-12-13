@@ -4,12 +4,6 @@ These are built-in macros. Using them, it is trivial to implement any macro you 
 
 These built-ins are written in Scheme, unlike macros defined by a user.
 
-```scheme
-(import (chicken io)
-        (srfi 13)
-        (srfi 69))
-```
-
 To ease creation of macros, there's that macro:
 
 %[define macro {%1

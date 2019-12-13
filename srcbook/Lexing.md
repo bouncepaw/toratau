@@ -18,12 +18,6 @@ During the lexing all token types get reduced to just two:
 - String. Sequence of characters. Expressed as Lisp's string.
 <!-- }] end notora -->
 
-```scheme
-(import matchable
-        (srfi 1)
-        (srfi 13))
-```
-
 ## Public API
 
 Only one function from this file is meant to be used outside of it. Maybe someday I'll encapsulate the rest. For now there's no need for it.

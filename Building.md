@@ -15,28 +15,27 @@ build: tangle compile
 	echo "Build Toratau"
 ```
 
-Only some files have been literatified, and it's done wrong. See the other branch to see how the true literate program should look. *WIP:* making it right iteratively.
+In directory `srcbook`: file `Implementation.md` is the main chapter that includes other source chapters when Toratau-expanded. Resulting text is fed to Qaraidel. Resulting program is compiled.
 
 ```make
 tangle:
-	$(toratau) < srcbook/Lexer.md | $(qaraidel) > tangled/lexer.scm
-	$(qaraidel) < srcbook/Scope.md > tangled/scope.scm
-	$(toratau) < srcbook/Prelude.md | $(qaraidel) >> tangled/scope.scm
-	cat srcbook/Parsing.md |          $(qaraidel) > tangled/parse.scm
+	cd srcbook && .$(toratau) < Implementation.md | $(qaraidel) > tangled_src.scm
+	cd ..
+	mv srcbook/tangled_src.scm .
 ```
 
 Compilation should work without surprises but I think some checks or tests should be added to see if the code should be really compiled:
 
 ```make
 compile:
-	chicken-csc tangled/toratau.scm -o toratau
+	chicken-csc tangled_src.scm -o toratau
 ```
 
 Clean-up after use:
 
 ```make
 clean:
-	rm toratau
+	rm tangled_src.scm
 ```
 
 If safe version of Toratau is compiled, backup it!:

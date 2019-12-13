@@ -2,13 +2,6 @@
 
 Parsing is process of turning tokens into executable structure.
 
-```scheme
-(import (clojurian syntax)
-        regex
-        (srfi 13)
-        (srfi 69))
-```
-
 ## Public API
 
 `exec` parses and *also* evaluates a `str`ing in place and returns the result. It is parsed as if it was on start of file (as normal text by default).
