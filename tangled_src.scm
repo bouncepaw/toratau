@@ -159,7 +159,7 @@
 (define (t-ifdef macro-name thenc . elsec) 
 
     (if (hash-table-exists? scope macro-name)
-        then
+        thenc
         (if (null? elsec) "" (car elsec)))
 )
 (hash-table-set! scope "ifdef" t-ifdef)
@@ -183,8 +183,7 @@
       ((eq? 1 (length arg)) "")
       (else
         (string-join (map (lambda (a) (string-join (list "{" a "}")))
-                          (cdr arg)))))
-)
+                          (cdr arg))))))
 (hash-table-set! scope "shift" t-shift)
 (hash-table-set! definitions "shift" "")
 (define (t-apply macro-name . args) 
@@ -196,7 +195,7 @@
 (define (t-dotimes n expr . joiner) 
 
     (string-join
-      (map exec (make-list n expr))
+      (map exec (make-list (string->number n) expr))
       (if (null? joiner) "" (car joiner)))
 )
 (hash-table-set! scope "dotimes" t-dotimes)

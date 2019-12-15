@@ -115,7 +115,7 @@ If macro called *macro-name* is defined, then return *thenc*, else return *elsec
 } {
 
     (if (hash-table-exists? scope macro-name)
-        then
+        thenc
         (if (null? elsec) "" (car elsec)))
 }]
 
@@ -182,7 +182,7 @@ Evaluate expression *expr* *n* times. Results of evaluation are then joined toge
 } {
 
     (string-join
-      (map exec (make-list n expr))
+      (map exec (make-list (string->number n) expr))
       (if (null? joiner) "" (car joiner)))
 }]
 

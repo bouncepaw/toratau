@@ -45,9 +45,9 @@ Contents of file1:
 world
 
 Contents of file2:
-Hello, %[include file1]!
+Hello, %[include file1]
 ↓
-Hello, world!
+Hello, world
 ```
 
 Many more applications are possible.
