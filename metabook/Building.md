@@ -5,8 +5,8 @@ After unsuccessful attempt to literatify all of Toratau, I'm going to make every
 Toratau depends on itself and on [Qaraidel for C](https://github.com/bouncepaw/qara2c). A safe version of Toratau has to be kept. Define paths to both Tora and Qara:
 
 ```make
-toratau := ./toratau
-#toratau := ~/bin/toratau
+#toratau := ../toratau
+toratau := ~/bin/toratau
 qaraidel := ~/bin/qara2c
 csc := chicken-csc
 ```
@@ -20,7 +20,7 @@ In directory `srcbook`: file `Implementation.md` is the main chapter that includ
 
 ```make
 tangle:
-	cd srcbook && .$(toratau) < Implementation.md | $(qaraidel) > tangled_src.scm
+	cd srcbook && $(toratau) < Implementation.md | $(qaraidel) > tangled_src.scm
 	cd ..
 	mv srcbook/tangled_src.scm .
 ```
