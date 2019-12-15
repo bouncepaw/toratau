@@ -186,6 +186,21 @@
                           (cdr arg))))))
 (hash-table-set! scope "shift" t-shift)
 (hash-table-set! definitions "shift" "")
+(define (t-shiftn n . arg) 
+
+    (if (eq? (length arg) 0)
+        ""
+        (string-join
+          (map (lambda (a) (string-join (list "{" a "}") ""))
+               (drop arg (string->number n))))))
+(hash-table-set! scope "shiftn" t-shiftn)
+(hash-table-set! definitions "shiftn" "")
+(define (t-shift . arg) 
+
+    (apply (hash-table-ref scope "shiftn") "1" arg)
+)
+(hash-table-set! scope "shift" t-shift)
+(hash-table-set! definitions "shift" "")
 (define (t-apply . els) 
 
     (exec (string-join (list "%" "[" (string-join els) "]") ""))

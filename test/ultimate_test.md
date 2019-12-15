@@ -48,8 +48,15 @@ b
 ## Misc
 
 ```
+%[shiftn 3 a b c d] == {d}
+%[shiftn 0 a b] == {a} {b}
+%[shiftn 1 a] ==  (empty)
+%[shiftn 4] ==  (empty)
+```
+
+```
 %[shift] ==  (empty)
-%[shift a] ==  (right empty)
+%[shift a] ==  (empty)
 %[shift a b] == {b}
 %[shift {a b} c d {e f g}] == {c} {d} {e f g}
 ```

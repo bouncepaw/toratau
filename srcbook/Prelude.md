@@ -162,6 +162,33 @@ Wrap every `arg` in `{}`, return all but the first one joined into one string.
                           (cdr arg)))))
 }]
 
+#### %[macro shiftn {n . arg} {
+
+Wrap every `arg` in `{}`, return all `arg`s but the first `n` joined into one string with spaces.
+
+    [shiftn 1] → 
+    [shiftn 2 a b c] → {c}
+    [shiftn 0 a b c] → {a} {b} {c}
+} {
+
+    (if (eq? (length arg) 0)
+        ""
+        (string-join
+          (map (lambda (a) (string-join (list "{" a "}") ""))
+               (drop arg (string->number n)))))
+}]
+
+#### %[macro shift {. arg} {
+
+Same as `shiftn`, but `n` is `1`. Basically dropping the first argument.
+
+    [shift] → 
+    [shift a b] → {b}
+} {
+
+    (apply (hash-table-ref scope "shiftn") "1" arg)
+}]
+
 #### %[macro apply {. els} {
 
 Call macro called *macro-name* with arguments that are in *args* separated by whitespace. Any number of *args* can be passed, they will be joined by whitespace together first.
