@@ -50,12 +50,13 @@ b
 ```
 %[shift] ==  (empty)
 %[shift a] ==  (right empty)
-%[shift a b] == b
+%[shift a b] == {b}
 %[shift {a b} c d {e f g}] == {c} {d} {e f g}
 ```
 
 ```
 %[define sum {%1 + %2}]
+%[apply sum 1 2] == 1 + 2
 %[apply sum [apply shift [shift a b c d]]] == c + d
 ```
 

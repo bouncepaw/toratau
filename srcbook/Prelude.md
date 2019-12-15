@@ -158,11 +158,11 @@ Wrap every `arg` in `{}`, return all but the first one joined into one string.
       ((null? arg) "")
       ((eq? 1 (length arg)) "")
       (else
-        (string-join (map (lambda (a) (string-join (list "{" a "}")))
+        (string-join (map (lambda (a) (string-join (list "{" a "}") ""))
                           (cdr arg)))))
 }]
 
-#### %[macro apply {macro-name . args} {
+#### %[macro apply {. els} {
 
 Call macro called *macro-name* with arguments that are in *args* separated by whitespace. Any number of *args* can be passed, they will be joined by whitespace together first.
 
@@ -170,7 +170,7 @@ Call macro called *macro-name* with arguments that are in *args* separated by wh
     [apply multi-hi {George John} Ivan] → Hi, George, John and Ivan
 } {
 
-    (exec (string-join args))
+    (exec (string-join (list "%" "[" (string-join els) "]") ""))
 }]
 
 #### %[macro dotimes {n expr . joiner} {

@@ -182,13 +182,13 @@
       ((null? arg) "")
       ((eq? 1 (length arg)) "")
       (else
-        (string-join (map (lambda (a) (string-join (list "{" a "}")))
+        (string-join (map (lambda (a) (string-join (list "{" a "}") ""))
                           (cdr arg))))))
 (hash-table-set! scope "shift" t-shift)
 (hash-table-set! definitions "shift" "")
-(define (t-apply macro-name . args) 
+(define (t-apply . els) 
 
-    (exec (string-join args))
+    (exec (string-join (list "%" "[" (string-join els) "]") ""))
 )
 (hash-table-set! scope "apply" t-apply)
 (hash-table-set! definitions "apply" "")
