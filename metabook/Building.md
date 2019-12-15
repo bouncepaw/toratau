@@ -8,6 +8,7 @@ Toratau depends on itself and on [Qaraidel for C](https://github.com/bouncepaw/q
 toratau := ./toratau
 #toratau := ~/bin/toratau
 qaraidel := ~/bin/qara2c
+csc := chicken-csc
 ```
 
 ```make
@@ -28,7 +29,7 @@ Compilation should work without surprises but I think some checks or tests shoul
 
 ```make
 compile:
-	chicken-csc tangled_src.scm -o toratau
+	$(csc) tangled_src.scm -o toratau
 ```
 
 Clean-up after use:

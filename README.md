@@ -1,205 +1,104 @@
-# toratau
+# Toratau
 
-Macro processor
+Macro processor embeddable anywhere.
 
-## Introduction
-
-Toratau gets input text. It evaluates every Toratau expression in it, result of evaluation is placed where the expression used to be.
+Define a new macro:
 
 ```
-This is %[upcase caps].
+%[define negate {Not %1}]
+%[negate bad], friend
 ↓
-This is CAPS.
+Not bad, friend
 ```
 
-Expressions can be nested. Expressions that are not being nested are called *root expressions* and are prefixed with percent sign `%`.
+Conditionals:
 
 ```
-This is %[upcase [lowercase CAPS]].
+%[define platform-linux? 1]
+%[ifdef platform-linux?
+  {Running Linux}
+  {Running something that's not Linux}]
 ↓
-This is %[upcase caps].
+Running Linux
+```
+
+Repeat phrase:
+
+```
+%[dotimes 4 {ha }], this is so funny!
 ↓
-This is CAPS.
+ha ha ha ha, this is so funny!
 ```
 
-Expression consists of a macro and any number of arguments separated by whitespace. All expressions are wrapped in `[]`.
+Concatenate words:
 
 ```
-expression prefix
-|
-| ______expression_______
-↓/                       \
-%[upcase [lowercase CAPS]]
-  ↑      \              /
-  macro   ---argument---
-  name
+%[cat Thou {sand } ye [cat a r s]]
+↓
+Thousand years
 ```
 
-Argument can be either string or expression. Strings come in this varieties:
-
-- `word`, `210`: not wrapped in anything. Cannot contain any whitespace. Do not support backslash-escaping. These are called raw strings.
-- `{two words}`: wrapped in curly braces. Can be nested easily, unlike traditional quotes. Expressions can be embedded inside: `{%[like that, with prefix]}`. `{\}}` is a string with two characters: `\` and `}`.
-- `'two words'`: wrapped in single quotes. Can contain any whitespace. Evaluate to strings that contain the surrounding quotes. `\'` in it evaluates to two characters and does not end the string.
-- `"two words"`: wrapped in double quotes. Can contain any whitespace. Evaluate to strings that contain the surrounding quotes. `\"` in it evaluates to two characters and does not end the string.
-
-## Out-of-the-box macros
-
-Toratau is shipped with a set of macros. User can redefine any of them and define their own macros. These pre-built macros provide only things that are required for comfortable macro creation.
-
-### Macro-defining macros
-
-#### define
+Include a file:
 
 ```
-[define macro-name definition]
+Contents of file1:
+world
+
+Contents of file2:
+Hello, %[include file1]!
+↓
+Hello, world!
 ```
 
-Define a new macro called *macro-name* in current scope with such *definition*. User can redefine existing macros using this macro. Arguments can be accessed using `%1`..`%N` where N is number of arguments. `%#` means number of passed arguments. `%*` means all arguments joined with spaces. `%@` means all arguments wrapped in `{}` and then joined with spaces.
+Many more applications are possible.
 
-```
-[define foo bar]
-[foo] → bar
+## Built-in macros reference
 
-[define welcome {Hello, %1!}]
-[welcome world] → Hello, world!
+Since Toratau's source is literate, source code and documentation are almost the same thing. Check out [Prelude.md](srcbook/Prelude.md) to see description and implementation of all built-in macros.
 
-[define analyze-args {
-Number: %#
-Unwrapped: %*
-Wrapped: %@}]
+## Syntax reference
 
-[analyze-args] →
-Number: 0
-Unwrapped: 
-Wrapped: 
+See [Lexing.md](srcbook/Lexing.md).
 
-[analyze-args one two {three four} [foo]] →
-Number: 4
-Unwrapped: one two three four bar
-Wrapped: {one} {two} {three four} {bar}
-```
+## Execution
 
-Return empty string.
+Toratau reads input from `stdin` and writes output to `stdout`. There's no built-in way to read/write a file, you have to use your shell's capabilities for that:
 
-#### rename
+```bash
+# Macro-expand pre.c and write output to stdout
+toratau < pre.c
+cat pre.c | toratau
 
-```
-[rename old-macro-name new-macro-name]
+# Macro-expand pre.c and write output to post.c
+toratau < pre.c > post.c
+cat pre.c | toratau > post.c
 ```
 
-Rename a macro called *old-macro-name* to *new-macro-name*. Is is no longer available as *old-macro-name*.
+## Installation
 
-```
-[define foo bar]
-[foo] → bar
-[rename foo baz]
-[foo] → ERROR
-[baz] → bar
-```
+Normally you need Toratau to build Toratau because its source is made with Toratau macros but you can also compile `tangled_src.scm` or just use pre-compiled `toratau` executable.
 
-Return empty string.
+Toratau depends on [Qaraidel for C](https://github.com/bouncepaw/qara2c) and on [Chicken Scheme](https://www.call-cc.org/) compiler. Configure their executable paths:
 
-#### defn
+### Configuration
 
-```
-[defn macro-name]
-```
+Toratau is built with a makefile but the makefile is preprocessed first. Edit `metabook/Building.md` first and then run `./makemake.sh`. In `metabook/Building.md` you can configure executable paths for Qaraidel, Chicken Scheme compiler and Toratau itself. If you want to run a specific task, pass the task's name:
 
-Return definition of a macro with such *macro-name*.
+```bash
+# tangle and compile
+./makemake.sh
 
-```
-[define welcome {Hello, %1!}]
-[defn welcome] → Hello, %1!
-```
+# just tangle
+./makemake.sh tangle
 
-### Flow control macros
+# just compile
+./makemake.sh compile
 
-#### ifeq
-
-```
-[ifeq str1 str2 then else*]
+# clean up
+./makemake.sh clean
 ```
 
-If *str1* equals *str2*, then return *then*, else return *else*. If *else* is not passed, then it is assumed that it is empty string.
+## Contributing
 
-```
-[ifeq 1 1 true] → true
-[ifeq 1 2 true] → EMPTY STRING
-[ifeq 1 2 true false] → false
-```
-
-#### ifdef
-
-```
-[ifdef macro-name then else*]
-```
-
-If macro called *macro-name* is defined, then return *then*, else return *else*. If *else* is not passed, then it is assumed that it is empty string.
-
-```
-[define foo bar]
-[ifdef foo defined undefined] → defined
-[ifdef quux defined undefined] → undefined
-```
-
-#### shift
-
-```
-[shift arg1 argn ...]
-```
-
-Return all `argn`s joined with spaces.
-
-#### apply
-
-```
-[apply macro-name args...]
-```
-
-Call macro called *macro-name* with arguments that are in *args* separated by whitespace. Any number of *args*es can be passed, they will be joined by whitespace together first.
-
-```
-[define multi-hi {Hi, %1, %2 and %3}]
-[apply multi-hi {George John} Ivan] → Hi, George, John and Ivan
-```
-
-#### dotimes
-
-```
-[dotimes n expr joiner*]
-```
-
-Evaluate expression *expr* *n* times. Results of evaluation are then joined together with *joiner*, this value is then returned. If *joiner* is not passed, it is assumed as empty string.
-
-```
-[dotimes 3 hi] → hihihi
-[dotimes 3 hi { }] → hi hi hi
-```
-
-### String manipulating macros
-
-#### cat
-
-```
-[cat arg ...]
-```
-
-Return all `arg`s joined together with an empty string.
-
-```
-[cat Hello World] → HelloWorld
-```
-
-#### lines
-
-```
-[lines arg ...]
-```
-
-Return all `arg`s joined together with a newline.
-
-```
-[lines Hello World] → Hello
-World
-```
+If you want to contribute, just make open an issue or make a pull-request or just contact me. Any feedback is welcome!
 

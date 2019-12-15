@@ -1,6 +1,7 @@
 toratau := ./toratau
 #toratau := ~/bin/toratau
 qaraidel := ~/bin/qara2c
+csc := chicken-csc
 build: tangle compile
 	echo "Build Toratau"
 tangle:
@@ -8,7 +9,7 @@ tangle:
 	cd ..
 	mv srcbook/tangled_src.scm .
 compile:
-	chicken-csc tangled_src.scm -o toratau
+	$(csc) tangled_src.scm -o toratau
 clean:
 	rm tangled_src.scm
 backup_exec:
