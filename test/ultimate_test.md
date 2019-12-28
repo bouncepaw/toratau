@@ -27,6 +27,7 @@ Test all built-ins.
 %[ifeq 1 1 true] == true
 %[ifeq 1 2 true] ==  (empty)
 %[ifeq 1 2 true false] == false
+%[ifeq 1 2 true {%[ifeq 1 1 falsetrue falsefalse]}] == falsetrue
 ```
 
 ```

@@ -27,6 +27,7 @@ I decided to come on with Toratau's own including instead of Scheme's `include`.
     %[include Parsing.md]
     %[include Scope.md]
     %[include Prelude.md]
+    %[include Utils.md]
 
 Read the source chapters:
 
@@ -34,6 +35,7 @@ Read the source chapters:
 - [Parsing.md](Parsing.md). Turning the tokens to executable Lisp code and executing it.
 - [Scope.md](Scope.md). Storing runtime macros.
 - [Prelude.md](Prelude.md). Built-in macros.
+- [Utils.md](Utils.md). Helpful utilities.
 
 
 ## Algorithm

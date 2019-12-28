@@ -120,6 +120,7 @@
       eval))
 (define scope (make-hash-table))
 (define definitions (make-hash-table))
+
 (define (t-define macro-name definition) 
 
     (hash-table-set! definitions macro-name definition)
@@ -151,16 +152,16 @@
 (define (t-ifeq str1 str2 thenc . elsec) 
 
     (if (equal? str1 str2)
-        thenc
-        (if (null? elsec) "" (car elsec)))
+        (exec-if-expr thenc)
+        (if (null? elsec) "" (exec-if-expr (car elsec))))
 )
 (hash-table-set! scope "ifeq" t-ifeq)
 (hash-table-set! definitions "ifeq" "")
 (define (t-ifdef macro-name thenc . elsec) 
 
     (if (hash-table-exists? scope macro-name)
-        thenc
-        (if (null? elsec) "" (car elsec)))
+        (exec-if-expr thenc)
+        (if (null? elsec) "" (exec-if-expr (car elsec))))
 )
 (hash-table-set! scope "ifdef" t-ifdef)
 (hash-table-set! definitions "ifdef" "")
@@ -226,6 +227,13 @@
 )
 (hash-table-set! scope "include" t-include)
 (hash-table-set! definitions "include" "")
+(define (if-wrapped-in str prefix suffix then-λ)
+  (if (and (string-prefix? prefix str)
+           (string-suffix? suffix str))
+    (then-λ str)
+    str))
+(define (exec-if-expr str)
+  (if-wrapped-in str (string-join (list "%" "[") "") "]" exec))
 (-> (read-string)
     string->list
     text->tokens

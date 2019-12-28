@@ -8,9 +8,7 @@ To ease creation of macros, there's that macro:
 
 %[define macro {%1
 
-    [%1 %2]
-
-%3
+    [%1 %2]%3
 
 ```scheme
 (define (t-%1 %2) %4)
@@ -18,6 +16,12 @@ To ease creation of macros, there's that macro:
 (hash-table-set! definitions "%1" "")
 ```
 }]
+
+And to prevent possible conflicts, there's that macro:
+
+```
+%[define p {{}}]
+```
 
 ## The macros
 
@@ -91,6 +95,10 @@ Return definition of a macro with such *macro-name*.
 
 ### Conditional
 
+For the next 2 macros, this statement is true:
+
+> If either of strings *thenc* or *elsec* start with `%[p][` and end with `]`, it gets evaluated when returned; this is done in such way so the clauses do not get evaluated too early (lazy evaluation).
+
 #### %[macro ifeq {str1 str2 thenc . elsec} {
 
 If *str1* equals *str2*, then return *thenc*, else return *elsec*. If *elsec* is not passed, then it is assumed that it is empty string.
@@ -98,11 +106,15 @@ If *str1* equals *str2*, then return *thenc*, else return *elsec*. If *elsec* is
     [ifeq 1 1 true] → true
     [ifeq 1 2 true] → 
     [ifeq 1 2 true false] → false
+    [ifeq 1 1 true {%[p][ifeq 1 1 falsetrue falsefalse]}] → true
+    // In this particular case there's no need for lazy evaluation.
+    // It is handy when implementing recursive macros though.
+    [ifeq 1 2 true {%[p][ifeq 1 1 falsetrue falsefalse]}] → falsetrue
 } {
 
     (if (equal? str1 str2)
-        thenc
-        (if (null? elsec) "" (car elsec)))
+        (exec-if-expr thenc)
+        (if (null? elsec) "" (exec-if-expr (car elsec))))
 }]
 
 #### %[macro ifdef {macro-name thenc . elsec} {
@@ -115,8 +127,8 @@ If macro called *macro-name* is defined, then return *thenc*, else return *elsec
 } {
 
     (if (hash-table-exists? scope macro-name)
-        thenc
-        (if (null? elsec) "" (car elsec)))
+        (exec-if-expr thenc)
+        (if (null? elsec) "" (exec-if-expr (car elsec))))
 }]
 
 ### String manipulating macros
